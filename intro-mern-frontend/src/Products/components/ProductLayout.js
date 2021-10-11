@@ -1,66 +1,64 @@
 import React, { useState, useEffect } from 'react'
-import { Modal, Container } from 'react-bulma-components'
 import Header from './Header'
-import AddButton from './AddButton'
-import ListProducts from './ListProducts'
-import Form from './Form'
-import Loading from './Loading'
-import { saveProduct, getProducts } from '../services'
+import AddButton from './AddButton';
+import ListProducts from './ListProducts';
+import ProductForm from './Form';
+import { saveProduct, getProducts } from '../services';
+import { Modal, Container } from 'react-bulma-components'
+import Loading from './Loading';
 
 const ProductLayout = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [products, setProducts] = useState([])
 
-    async function loadProducts () {
+    async function LoadProducts() {
         const response = await getProducts()
-        
         if (response.status === 200) {
             setProducts(response.data.products)
         }
-    
         setIsLoading(false)
     }
 
     useEffect(() => {
-        loadProducts()
+        LoadProducts()
     }, [])
 
     const handleSubmit = async (data) => {
         await saveProduct(data)
-        loadProducts()
+        await LoadProducts()
         setIsModalOpen(false)
     }
 
     return (
         <Container>
-            <Header title="Products app" />
-            <AddButton onClick={() => setIsModalOpen(true)} />
+            <Header title="My Products"></Header>
+            <AddButton onClick={() => setIsModalOpen(true)}></AddButton>
             {
-                isLoading && <Loading />           
+                isLoading && <Loading />
             }
-
             {
-                !isLoading && !products.length && (
-                    <h2 className="title has-text-centered">
-                        You don't have products
-                    </h2>
+                !isLoading && (products.length === 0)
+                && (
+                    <h3 className="title has-text-centered">
+                        You don't have products.
+                    </h3>
                 )
             }
-
             {
-                isLoading && products.length && <ListProducts products={products} />
+                !isLoading && (products.length > 0)
+                && (
+                    <ListProducts products={products}/>
+                )
             }
 
             <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <Modal.Card>
                     <Modal.Card.Header showClose={false}>
-                    <Modal.Card.Title>
-                        Add Product
-                    </Modal.Card.Title>
+                        <Modal.Card.Title>Add Product</Modal.Card.Title>
                     </Modal.Card.Header>
                     <Modal.Card.Body>
-                        <Form handleSubmit={handleSubmit} />
+                        <ProductForm handleSubmit={handleSubmit}></ProductForm>
                     </Modal.Card.Body>
                 </Modal.Card>
             </Modal>
